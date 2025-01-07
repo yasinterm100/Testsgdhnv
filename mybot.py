@@ -1,7 +1,7 @@
 import telebot
 
 # توکن ربات تلگرام خود را اینجا وارد کنید
-TOKEN = 'توکن_ربات_اینجا'
+TOKEN = '7942772127:AAGjnzjnsHqAQAo6HtS2pdPEawQYbSPMJ1o'
 bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(func=lambda message: message.text.lower() == "سلام")
