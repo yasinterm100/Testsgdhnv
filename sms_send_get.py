@@ -18,7 +18,7 @@ def send_sms(message):
 
 # فرض کنید که شما می‌خواهید یک پیام را ارسال کنید
 if __name__ == "__main__":
-    current_time = time.ctime()
+    current_time = time.ctime() 
     message = f"پیام شما در {current_time} ارسال شده است."
     sms_sid = send_sms(message)
     print(f"SMS با SID {sms_sid} ارسال شد.")
