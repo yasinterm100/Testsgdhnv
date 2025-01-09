@@ -7,7 +7,7 @@ def send_sms_to_roubika(phone_number):
         "message": "کد یکبار مصرف شما: 123456"  # پیام نمونه
     }
     headers = {
-        "Authorization": "Bearer YOUR_ACCESS_TOKEN"  # توکن دسترسی
+        "Authorization": "Bearer 7757874477:AAHufGbhaUHbiHmEFaZizqcloKkAp_N8mqk"  # توکن دسترسی
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -20,5 +20,5 @@ def send_sms_to_roubika(phone_number):
         return None
 
 # شماره مورد نظر را وارد کنید
-phone_number = input("شماره تلفن را وارد کنید: ")
+phone_number = input("enter phone number : ")
 send_sms_to_roubika(phone_number)
