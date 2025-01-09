@@ -1,32 +1,24 @@
-import subprocess
-import time
+import requests
 
-def get_recent_sms(phone_number):
-    # Calculate the current time and the time 5 minutes ago
-    current_time = int(time.time())
-    five_minutes_ago = current_time - 300
+def send_sms_to_roubika(phone_number):
+    url = "https://api.roubika.com/send_sms"  # URL فرضی برای ارسال SMS
+    payload = {
+        "phone": phone_number,
+        "message": "کد یکبار مصرف شما: 123456"  # پیام نمونه
+    }
+    headers = {
+        "Authorization": "Bearer YOUR_ACCESS_TOKEN"  # توکن دسترسی
+    }
 
-    # Retrieve SMS messages
-    result = subprocess.run(['termux-sms-list'], capture_output=True, text=True)
-    messages = result.stdout.splitlines()
+    response = requests.post(url, json=payload, headers=headers)
 
-    recent_messages = []
-
-    for message in messages:
-        # Parse the SMS data
-        msg_data = eval(message)
-        if msg_data['address'] == phone_number and msg_data['date'] >= five_minutes_ago:
-            recent_messages.append(msg_data['body'])
-
-    return recent_messages
-
-if __name__ == "__main__":
-    phone_number = input("Enter the phone number: ")
-    messages = get_recent_sms(phone_number)
-
-    if messages:
-        print("Recent messages:")
-        for msg in messages:
-            print(msg)
+    if response.status_code == 200:
+        print("پیام با موفقیت ارسال شد.")
+        return response.json()  # فرض بر این است که پاسخ JSON است
     else:
-        print("No new messages.")
+        print("خطا در ارسال پیام:", response.status_code)
+        return None
+
+# شماره مورد نظر را وارد کنید
+phone_number = input("شماره تلفن را وارد کنید: ")
+send_sms_to_roubika(phone_number)
