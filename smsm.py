@@ -2,8 +2,8 @@ from argparse import ArgumentParser
 from urllib3 import ProxyManager, exceptions
 from json import dumps
 from re import search
-import random 
-import colorama 
+import random
+import colorama
 from colorama import Fore, Style
 from concurrent.futures import ThreadPoolExecutor
 from time import sleep
@@ -76,7 +76,10 @@ def main():
     parser = ArgumentParser(prog="asmsb", description="Optimized OTP SMS Bomber", epilog="By Arya (Optimized by Grok)")
     parser.add_argument("cellphone", help="Target cellphone: e.g. 9123456789")
     parser.add_argument("--times", help="Number of SMS batches", type=int, default=10)
-    spam(parser.parse_args())
+    
+    # گرفتن ورودی از ترمینال
+    args = parser.parse_args()
+    spam(args)
 
 if __name__ == "__main__":
     main()
