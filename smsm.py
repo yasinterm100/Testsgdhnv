@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from urllib3 import ProxyManager, exceptions
 from json import dumps
 from re import search
-import random
+import random 
 import colorama 
 from colorama import Fore, Style
 from concurrent.futures import ThreadPoolExecutor
