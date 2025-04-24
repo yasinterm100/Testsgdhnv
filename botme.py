@@ -1,4 +1,6 @@
 import os
+import math
+import logging
 import requests
 from io import BytesIO
 from telegram import Update, InputMediaPhoto
@@ -10,41 +12,54 @@ from telegram.ext import (
     ContextTypes,
     filters,
 )
-from duckduckgo_search import DuckDuckGoImages
+from icrawler.builtin import GoogleImageCrawler
+from icrawler import ImageDownloader
 
-# توکن ربات تلگرام
+# توکن ربات
 BOT_TOKEN = "7714713597:AAELFzgtECBWRK7TDljAOXub-pF6FO3oBCw"
 ASK_QUERY, ASK_COUNT = range(2)
 
-# شروع مکالمه
+# لاگ ساده
+logging.basicConfig(level=logging.INFO)
+
+# دانلودر سفارشی فقط برای گرفتن URL عکس‌ها
+class URLCollector(ImageDownloader):
+    def download(self, task, default_ext, timeout=5, **kwargs):
+        return task['file_url']
+
+def get_image_urls(query, count):
+    crawler = GoogleImageCrawler(downloader_cls=URLCollector)
+    crawler.crawl(keyword=query, max_num=count)
+    return crawler.downloader.rets
+
+# استارت ربات
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("سلام! موضوع عکس‌هایی که می‌خوای رو بنویس:")
     return ASK_QUERY
 
-# دریافت موضوع جستجو
+# مرحله گرفتن موضوع
 async def get_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['query'] = update.message.text.strip()
-    await update.message.reply_text("چند تا عکس می‌خوای؟ فقط عدد بنویس:")
+    await update.message.reply_text("چند تا عکس می‌خوای؟ فقط عدد بفرست:")
     return ASK_COUNT
 
-# دریافت تعداد و ارسال تصاویر
+# مرحله گرفتن تعداد و ارسال تصاویر
 async def get_count(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
         count = int(update.message.text.strip())
         if count <= 0:
             raise ValueError
     except:
-        await update.message.reply_text("عدد معتبر وارد کن.")
+        await update.message.reply_text("عدد معتبر وارد نشد.")
         return ASK_COUNT
 
     query = context.user_data.get("query")
-    await update.message.reply_text(f"در حال جستجو برای: «{query}» ({count} عکس) ...")
+    await update.message.reply_text(f"در حال جستجو برای: {query} ...")
 
-    results = DuckDuckGoImages().search(query, max_results=count)
+    urls = get_image_urls(query, count)
     media = []
 
-    for i, result in enumerate(results):
-        url = result.image
+    for i, url in enumerate(urls):
         try:
             res = requests.get(url, timeout=10)
             if res.status_code == 200:
@@ -58,13 +73,13 @@ async def get_count(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             break
 
     if not media:
-        await update.message.reply_text("هیچ عکسی پیدا نشد. لطفاً موضوع دیگه‌ای امتحان کن.")
+        await update.message.reply_text("هیچ عکسی پیدا نشد. موضوع دیگه‌ای امتحان کن.")
         return ConversationHandler.END
 
     for i in range(0, len(media), 10):
         await update.message.reply_media_group(media[i:i+10])
 
-    await update.message.reply_text("✅ عکس‌ها ارسال شدن! برای جستجوی جدید /start رو بزن.")
+    await update.message.reply_text("✅ عکس‌ها ارسال شدن. برای جستجوی جدید /start رو بزن.")
     return ConversationHandler.END
 
 # لغو عملیات
@@ -72,7 +87,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("⛔ عملیات لغو شد.")
     return ConversationHandler.END
 
-# اجرای اصلی ربات
+# اجرای ربات
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
 
